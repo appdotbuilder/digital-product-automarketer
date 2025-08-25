@@ -44,6 +44,7 @@ class ResellerController extends Controller
 
         // Generate unique code
         $validated['unique_code'] = strtoupper(substr(hash('sha256', $validated['email'] . time()), 0, 8));
+        $validated['status'] = 'active'; // Set default status
 
         $reseller = Reseller::create($validated);
 

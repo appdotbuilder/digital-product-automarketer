@@ -59,7 +59,10 @@ class MemberController extends Controller
      */
     public function store(StoreMemberRequest $request)
     {
-        $member = Member::create($request->validated());
+        $validatedData = $request->validated();
+        $validatedData['status'] = 'active'; // Set default status
+        
+        $member = Member::create($validatedData);
 
         // Send welcome notifications
         $this->notificationService->sendWelcomeNotifications($member);
