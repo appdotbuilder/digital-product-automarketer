@@ -1,14 +1,14 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { LoaderCircle, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
 
+import AuthDigiMarketLayout from '@/components/auth-digimarket-layout';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
 
 type LoginForm = {
     email: string;
@@ -22,6 +22,7 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword }: LoginProps) {
+    const [showPassword, setShowPassword] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -36,13 +37,28 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     };
 
     return (
-        <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
-            <Head title="Log in" />
+        <AuthDigiMarketLayout 
+            title="Welcome Back" 
+            description="Sign in to your DigiMarket Pro account to continue"
+        >
+            <Head title="Log in - DigiMarket Pro" />
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+            {status && (
+                <div className="mb-6 text-center text-sm font-medium text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
+                    {status}
+                </div>
+            )}
+
+            <form className="space-y-6" onSubmit={submit}>
+                {/* Email Field */}
+                <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                        Email Address
+                    </Label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Mail className="h-5 w-5 text-gray-400" />
+                        </div>
                         <Input
                             id="email"
                             type="email"
@@ -52,33 +68,50 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             autoComplete="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            placeholder="email@example.com"
+                            placeholder="Enter your email"
+                            className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-all duration-200"
                         />
-                        <InputError message={errors.email} />
                     </div>
+                    <InputError message={errors.email} />
+                </div>
 
-                    <div className="grid gap-2">
-                        <div className="flex items-center">
-                            <Label htmlFor="password">Password</Label>
-                            {canResetPassword && (
-                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
-                                    Forgot password?
-                                </TextLink>
-                            )}
+                {/* Password Field */}
+                <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                        Password
+                    </Label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Lock className="h-5 w-5 text-gray-400" />
                         </div>
                         <Input
                             id="password"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             required
                             tabIndex={2}
                             autoComplete="current-password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Password"
+                            placeholder="Enter your password"
+                            className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-all duration-200"
                         />
-                        <InputError message={errors.password} />
+                        <button
+                            type="button"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                            ) : (
+                                <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                            )}
+                        </button>
                     </div>
+                    <InputError message={errors.password} />
+                </div>
 
+                {/* Remember & Forgot Password */}
+                <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <Checkbox
                             id="remember"
@@ -86,25 +119,62 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             checked={data.remember}
                             onClick={() => setData('remember', !data.remember)}
                             tabIndex={3}
+                            className="border-gray-300 text-blue-600 focus:ring-blue-500 rounded"
                         />
-                        <Label htmlFor="remember">Remember me</Label>
+                        <Label htmlFor="remember" className="text-sm text-gray-700">
+                            Remember me
+                        </Label>
                     </div>
-
-                    <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Log in
-                    </Button>
+                    
+                    {canResetPassword && (
+                        <TextLink 
+                            href={route('password.request')} 
+                            className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200" 
+                            tabIndex={4}
+                        >
+                            Forgot password?
+                        </TextLink>
+                    )}
                 </div>
 
-                <div className="text-center text-sm text-muted-foreground">
-                    Don't have an account?{' '}
-                    <TextLink href={route('register')} tabIndex={5}>
-                        Sign up
+                {/* Submit Button */}
+                <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base" 
+                    tabIndex={5} 
+                    disabled={processing}
+                >
+                    {processing ? (
+                        <>
+                            <LoaderCircle className="h-5 w-5 animate-spin mr-2" />
+                            Signing In...
+                        </>
+                    ) : (
+                        'Sign In'
+                    )}
+                </Button>
+
+                {/* Divider */}
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                        <span className="px-4 bg-white text-gray-500">New to DigiMarket Pro?</span>
+                    </div>
+                </div>
+
+                {/* Sign Up Link */}
+                <div className="text-center">
+                    <TextLink 
+                        href={route('register')} 
+                        className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200" 
+                        tabIndex={6}
+                    >
+                        Create your account →
                     </TextLink>
                 </div>
             </form>
-
-            {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-        </AuthLayout>
+        </AuthDigiMarketLayout>
     );
 }
