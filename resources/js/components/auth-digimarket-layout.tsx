@@ -99,7 +99,7 @@ export default function AuthDigiMarketLayout({ children, title, description }: P
                 <div className="w-full max-w-md">
                     {/* Mobile Logo */}
                     <div className="lg:hidden mb-8 text-center">
-                        <Link href={route('home')} className="inline-flex items-center space-x-2">
+                        <Link href={route('welcome')} className="inline-flex items-center space-x-2">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
                                 <svg className="w-6 h-6 text-white" viewBox="0 0 40 42" fill="currentColor">
                                     <path
