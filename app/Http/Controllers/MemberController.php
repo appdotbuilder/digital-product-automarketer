@@ -33,7 +33,12 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $members = Member::with('referrer')->latest()->paginate(15);
+        try {
+            $members = Member::with('referrer')->latest()->paginate(15);
+        } catch (\Exception $e) {
+            // Fallback to empty paginated collection if members table doesn't exist
+            $members = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15);
+        }
         
         return Inertia::render('members/index', [
             'members' => $members
@@ -45,7 +50,13 @@ class MemberController extends Controller
      */
     public function create(Request $request)
     {
-        $products = Product::active()->get();
+        try {
+            $products = Product::active()->get();
+        } catch (\Exception $e) {
+            // Fallback to empty collection if products table doesn't exist
+            $products = collect([]);
+        }
+        
         $referrerCode = $request->query('ref');
         
         return Inertia::render('members/create', [

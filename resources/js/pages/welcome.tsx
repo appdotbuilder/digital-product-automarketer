@@ -22,6 +22,9 @@ export default function Welcome({ products = [], referrer_code }: Props) {
         ? route('members.create', { ref: referrer_code })
         : route('members.create');
 
+    // Ensure products is always an array
+    const safeProducts = Array.isArray(products) ? products : [];
+
     return (
         <>
             <Head title="Digital Products Marketing Platform" />
@@ -144,7 +147,7 @@ export default function Welcome({ products = [], referrer_code }: Props) {
                 </section>
 
                 {/* Products Preview */}
-                {products.length > 0 && (
+                {safeProducts.length > 0 && (
                     <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600">
                         <div className="container mx-auto px-6">
                             <div className="text-center mb-16">
@@ -157,7 +160,7 @@ export default function Welcome({ products = [], referrer_code }: Props) {
                             </div>
 
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {products.slice(0, 6).map((product) => (
+                                {safeProducts.slice(0, 6).map((product) => (
                                     <div key={product.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
                                         <div className="text-3xl mb-4">
                                             {product.type === 'software' ? '💻' : '📚'}

@@ -19,8 +19,12 @@ class PublicResellerController extends Controller
      */
     public function index($code)
     {
-        $reseller = Reseller::active()->where('unique_code', $code)->firstOrFail();
-        $products = Product::active()->get();
+        try {
+            $reseller = Reseller::active()->where('unique_code', $code)->firstOrFail();
+            $products = Product::active()->get();
+        } catch (\Exception $e) {
+            abort(404, 'Reseller not found or database error');
+        }
         
         return Inertia::render('resellers/landing', [
             'reseller' => $reseller,
@@ -55,16 +59,20 @@ class PublicResellerController extends Controller
      */
     public function show($code)
     {
-        $reseller = Reseller::active()->where('unique_code', $code)->firstOrFail();
-        $referrals = Member::where('referrer_code', $code)
-            ->latest()
-            ->paginate(10);
-        
-        $stats = [
-            'total_referrals' => $reseller->referrals()->count(),
-            'this_month' => $reseller->referrals()->whereMonth('created_at', now()->month)->count(),
-            'this_week' => $reseller->referrals()->where('created_at', '>=', now()->startOfWeek())->count(),
-        ];
+        try {
+            $reseller = Reseller::active()->where('unique_code', $code)->firstOrFail();
+            $referrals = Member::where('referrer_code', $code)
+                ->latest()
+                ->paginate(10);
+            
+            $stats = [
+                'total_referrals' => $reseller->referrals()->count(),
+                'this_month' => $reseller->referrals()->whereMonth('created_at', now()->month)->count(),
+                'this_week' => $reseller->referrals()->where('created_at', '>=', now()->startOfWeek())->count(),
+            ];
+        } catch (\Exception $e) {
+            abort(404, 'Reseller not found or database error');
+        }
         
         return Inertia::render('resellers/dashboard', [
             'reseller' => $reseller,
